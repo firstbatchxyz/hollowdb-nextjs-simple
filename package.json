@@ -14,15 +14,21 @@
     "@mantine/core": "^6.0.6",
     "@mantine/hooks": "^6.0.6",
     "@mantine/next": "^6.0.6",
+    "@mantine/notifications": "^6.0.8",
     "@types/node": "18.15.11",
     "@types/react": "18.0.33",
     "@types/react-dom": "18.0.11",
+    "arweave-wallet-connector": "^1.0.2",
     "eslint": "8.37.0",
     "eslint-config-next": "13.3.0",
     "next": "13.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "typescript": "5.0.3"
+    "react-json-view": "^1.21.3",
+    "typescript": "5.0.3",
+    "warp-contracts": "^1.4.1",
+    "warp-contracts-plugin-deploy": "^1.0.4",
+    "warp-contracts-plugin-signature": "^1.0.12"
   },
   "devDependencies": {
     "sass": "^1.61.0"
