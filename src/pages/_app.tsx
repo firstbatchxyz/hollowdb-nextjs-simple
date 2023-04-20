@@ -3,6 +3,20 @@ import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
 import { WarpContextProvider } from "../context/warp.context";
 import { Notifications } from "@mantine/notifications";
+// wagmi
+import { WagmiConfig, createClient, configureChains, mainnet } from "wagmi";
+import { publicProvider } from "wagmi/providers/public";
+
+const { chains, provider, webSocketProvider } = configureChains(
+  [mainnet],
+  [publicProvider()]
+);
+
+const client = createClient({
+  autoConnect: false,
+  provider,
+  webSocketProvider,
+});
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -24,10 +38,12 @@ export default function App(props: AppProps) {
           colorScheme: "light",
         }}
       >
-        <Notifications />
-        <WarpContextProvider>
-          <Component {...pageProps} />
-        </WarpContextProvider>
+        <WagmiConfig client={client}>
+          <Notifications />
+          <WarpContextProvider>
+            <Component {...pageProps} />
+          </WarpContextProvider>
+        </WagmiConfig>
       </MantineProvider>
     </>
   );

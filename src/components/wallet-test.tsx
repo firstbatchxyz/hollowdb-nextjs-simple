@@ -1,5 +1,5 @@
 import { useWarpContext } from "@/context/warp.context";
-import { Box, Button, Stack, Text } from "@mantine/core";
+import { Box, Button, Group, Stack, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import dynamic from "next/dynamic";
 import { FC, useState } from "react";
@@ -11,8 +11,8 @@ const WalletTest: FC = () => {
     isConnected,
     isLoading,
     connectArweave,
-    address,
-    disconnectArweave,
+    connectMetaMask,
+    disconnect,
   } = useWarpContext();
   const [resultData, setResultData] = useState<object>({});
 
@@ -48,17 +48,30 @@ const WalletTest: FC = () => {
           width: "50vw",
         }}
       >
-        <Button
-          disabled={isLoading}
-          onClick={() => {
-            isConnected ? disconnectArweave() : connectArweave();
-          }}
-        >
-          {isConnected ? "Disconnect" : "Connect with Arweave"}
-        </Button>
-        <Button disabled={!isConnected || isLoading} onClick={() => test()}>
-          Test
-        </Button>
+        <Group>
+          <Button
+            disabled={isLoading}
+            onClick={() => {
+              isConnected ? disconnect() : connectArweave();
+            }}
+          >
+            {isConnected ? "Disconnect" : "Connect with Arweave"}
+          </Button>
+
+          <Button
+            disabled={isLoading}
+            onClick={() => {
+              isConnected ? disconnect() : connectMetaMask();
+            }}
+          >
+            {isConnected ? "Disconnect" : "Connect with MetaMask"}
+          </Button>
+
+          <Button disabled={!isConnected || isLoading} onClick={() => test()}>
+            Test
+          </Button>
+        </Group>
+
         <DynamicReactJson
           src={resultData}
           collapsed
