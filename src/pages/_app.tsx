@@ -6,6 +6,7 @@ import { Notifications } from "@mantine/notifications";
 // wagmi
 import { WagmiConfig, createClient, configureChains, mainnet } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
+import Layout from "@/components/layout";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [mainnet],

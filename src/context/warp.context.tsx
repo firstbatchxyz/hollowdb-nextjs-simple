@@ -8,15 +8,18 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Warp, Contract, WarpFactory, CustomSignature } from "warp-contracts";
+import { Warp, Contract, WarpFactory } from "warp-contracts";
 import { ArweaveWebWallet } from "arweave-wallet-connector";
-import { evmSignature } from "warp-contracts-plugin-signature";
 import { notifications } from "@mantine/notifications";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import { SnarkjsExtension } from "warp-contracts-plugin-snarkjs";
+import { EthersExtension } from "warp-contracts-plugin-ethers";
 
 // instantiate warp
-const warp = WarpFactory.forMainnet();
+const warp = WarpFactory.forMainnet()
+  .use(new SnarkjsExtension())
+  .use(new EthersExtension());
 
 // instantiate Arweave Web Wallet
 const arweaveWebWallet = new ArweaveWebWallet(
@@ -124,13 +127,16 @@ export const WarpContextProvider: FC<{
 
     wagmiConnect();
 
+    // if you get SubtleCrypto error, just comment out this part,
+    // and then uncomment again and it should work
     const contract = warp
       .contract(constants.HOLLOWDB_TEST_TXID)
       .setEvaluationOptions({
         allowBigInt: true,
       })
       .connect({
-        signer: evmSignature,
+        // you need to do this lazily, otherwise you get "SubtleCrypto undefined" error
+        signer: (await import("warp-contracts-plugin-signature")).evmSignature,
         type: "ethereum",
       });
     setHollowDBContract(contract);
@@ -148,9 +154,11 @@ export const WarpContextProvider: FC<{
       wagmiDisconnect();
     }
     if (isArweaveConnected) {
+      await arweaveWebWallet.disconnect();
       setArWallet(undefined);
     }
     setHollowDBContract(undefined);
+    setAddress("");
   }
 
   return (
