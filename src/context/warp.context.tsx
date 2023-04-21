@@ -1,13 +1,5 @@
 import constants from "@/constants";
-import {
-  FC,
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { FC, ReactNode, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Warp, Contract, WarpFactory } from "warp-contracts";
 import { ArweaveWebWallet } from "arweave-wallet-connector";
 import { notifications } from "@mantine/notifications";
@@ -15,11 +7,6 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { SnarkjsExtension } from "warp-contracts-plugin-snarkjs";
 import { EthersExtension } from "warp-contracts-plugin-ethers";
-
-// instantiate warp
-const warp = WarpFactory.forMainnet()
-  .use(new SnarkjsExtension())
-  .use(new EthersExtension());
 
 // instantiate Arweave Web Wallet
 const arweaveWebWallet = new ArweaveWebWallet(
@@ -35,7 +22,6 @@ const arweaveWebWallet = new ArweaveWebWallet(
 );
 
 type WarpContextType = {
-  warp: Warp;
   hollowDBContract: Contract<unknown> | undefined; // can add HollowDB state here
   isConnected: boolean;
   isLoading: boolean;
@@ -45,7 +31,6 @@ type WarpContextType = {
   disconnect: () => Promise<void>;
 };
 const WarpContext = createContext<WarpContextType>({
-  warp,
   hollowDBContract: undefined,
   isConnected: false,
   isLoading: false,
@@ -57,13 +42,11 @@ const WarpContext = createContext<WarpContextType>({
 
 export const WarpContextProvider: FC<{
   children: ReactNode;
-}> = ({ children }) => {
+  warp: Warp;
+}> = ({ children, warp }) => {
   // arweave
   const [arWallet, setArWallet] = useState<typeof arweaveWebWallet>();
-  const isArweaveConnected = useMemo(
-    () => (arWallet ? arWallet.connected : false),
-    [arWallet]
-  );
+  const isArweaveConnected = useMemo(() => (arWallet ? arWallet.connected : false), [arWallet]);
   // wagmi
   const { address: wagmiAddress, isConnected: isWagmiConnected } = useAccount();
   const { connect: wagmiConnect } = useConnect({
@@ -164,7 +147,6 @@ export const WarpContextProvider: FC<{
   return (
     <WarpContext.Provider
       value={{
-        warp,
         hollowDBContract,
         isLoading,
         isConnected,
