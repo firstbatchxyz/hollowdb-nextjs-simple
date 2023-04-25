@@ -10,68 +10,30 @@ import { useState } from "react";
 const DynamicReactJson = dynamic(import("react-json-view"), { ssr: false });
 
 const Home: NextPage = () => {
-  const { hollowDBContract, isConnected, isLoading } = useWarpContext();
+  const { hollowdb, isConnected, isLoading } = useWarpContext();
   const [resultData, setResultData] = useState<object>({});
   const [secret, setSecret] = useState<number | "">("");
   const [key, setKey] = useState("00275698acd0ec9de2903fd5a3cef12457534ef46310a995b78ddb5ef864da64");
   const [value, setValue] = useState("");
 
   async function get() {
-    if (!hollowDBContract) return;
-    const result = await hollowDBContract.viewState({
-      function: "get",
-      data: {
-        key,
-      },
+    if (!hollowdb) return;
+    const result = await hollowdb.get(key);
+    setResultData({
+      result,
     });
-    if (result.type !== "ok") {
-      notifications.show({
-        title: "GET failed",
-        message: "An error occured during GET",
-        color: "red",
-      });
-    } else {
-      setResultData({
-        result: result.result,
-        type: result.type,
-        error: result.errorMessage,
-      });
-    }
   }
 
   async function put() {
-    if (!hollowDBContract) return;
-    const result = await hollowDBContract.writeInteraction({
-      function: "put",
-      data: {
-        key: key,
-        value: value,
-      },
-    });
-
-    setResultData({
-      txId: result?.originalTxId,
-    });
+    if (!hollowdb) return;
+    await hollowdb.put(key, value);
   }
 
   async function update() {
-    if (!hollowDBContract) return;
+    if (!hollowdb) return;
 
     // first get the result
-    const getResult = await hollowDBContract.viewState({
-      function: "get",
-      data: {
-        key,
-      },
-    });
-    if (getResult.type !== "ok") {
-      notifications.show({
-        title: "GET failed",
-        message: "An error occured during GET",
-        color: "red",
-      });
-    }
-
+    const oldValue = hollowdb.get(key);
     // generate proof
     const notificationId = "proof-generation-notification";
     notifications.show({
@@ -80,7 +42,7 @@ const Home: NextPage = () => {
       message: "This may take a while...",
       autoClose: false,
     });
-    const { proof } = await generateProof(BigInt(secret), getResult.result, value);
+    const { proof } = await generateProof(BigInt(secret), oldValue, value);
     notifications.update({
       id: notificationId,
       title: "Done",
@@ -89,18 +51,7 @@ const Home: NextPage = () => {
     });
 
     // update
-    const result = await hollowDBContract.writeInteraction({
-      function: "update",
-      data: {
-        key: key,
-        value: value,
-        proof: proof,
-      },
-    });
-
-    setResultData({
-      txId: result?.originalTxId,
-    });
+    const result = await hollowdb.update(key, value, proof);
   }
 
   return (

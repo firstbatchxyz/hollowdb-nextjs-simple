@@ -5,11 +5,10 @@ import { WarpContextProvider } from "../context/warp.context";
 import { Notifications } from "@mantine/notifications";
 // warp
 import { WarpFactory } from "warp-contracts";
-import { SnarkjsExtension } from "warp-contracts-plugin-snarkjs";
-import { EthersExtension } from "warp-contracts-plugin-ethers";
 // wagmi
 import { WagmiConfig, createClient, configureChains, mainnet } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
+import { SDK } from "hollowdb";
 
 // instantiate wagmi client
 const { provider, webSocketProvider } = configureChains([mainnet], [publicProvider()]);
@@ -20,7 +19,7 @@ const client = createClient({
 });
 
 // instantiate warp
-const warp = WarpFactory.forMainnet().use(new SnarkjsExtension()).use(new EthersExtension());
+const warp = WarpFactory.forMainnet();
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
