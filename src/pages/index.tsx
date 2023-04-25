@@ -18,6 +18,23 @@ const Home: NextPage = () => {
 
   async function get() {
     if (!hollowDBContract) return;
+    const result = await hollowDBContract.getStorageValues([key]);
+    const value = result.cachedValue.get(key);
+
+    if (value === null) {
+      notifications.show({
+        title: "GET failed",
+        message: "An error occured during GET",
+        color: "red",
+      });
+    }
+    setResultData({
+      result: value,
+    });
+  }
+
+  async function getWithWallet() {
+    if (!hollowDBContract) return;
     const result = await hollowDBContract.viewState({
       function: "get",
       data: {
