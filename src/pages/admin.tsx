@@ -16,12 +16,6 @@ const Admin: NextPage = () => {
   const [contractDeployed, setContractDeployed] = useState<boolean>(false);
   const [verkey, setVerkey] = useState<object>({});
 
-  const srcTx: FromSrcTxContractData = {
-    srcTxId: constants.HOLLOWDB_TEST_SRCTXID,
-    wallet: "use_wallet",
-    initState: JSON.stringify(initialState),
-  };
-
   async function deployContract() {
     // Will retrieve this one from warp.context.tsx
     const warp: Warp = WarpFactory.forMainnet().use(new DeployPlugin());
@@ -40,8 +34,12 @@ const Admin: NextPage = () => {
     await wallet.connect();
     const userSigner = new InjectedArweaveSigner(wallet);
     await userSigner.setPublicKey();
-
-    const result = await warp.deployFromSourceTx(srcTx, true);
+    const srcTx: FromSrcTxContractData = {
+      srcTxId: constants.HOLLOWDB_TEST_SRCTXID,
+      wallet: userSigner,
+      initState: JSON.stringify(initialState),
+    };
+    const result = await warp.deployFromSourceTx(srcTx);
     console.log(result);
   }
 
