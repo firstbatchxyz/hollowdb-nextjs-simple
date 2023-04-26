@@ -19,7 +19,7 @@ const Admin: NextPage = () => {
   const srcTx: FromSrcTxContractData = {
     srcTxId: constants.HOLLOWDB_TEST_SRCTXID,
     wallet: "use_wallet",
-    initState: initialState.toString(),
+    initState: JSON.stringify(initialState),
   };
 
   async function deployContract() {
