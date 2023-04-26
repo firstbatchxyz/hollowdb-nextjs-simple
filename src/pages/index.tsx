@@ -151,7 +151,7 @@ const Home: NextPage = () => {
               width: "100px",
             }}
             size="xs"
-            disabled={!isConnected || isLoading}
+            //disabled={!isConnected || isLoading}
             onClick={() => get()}
           >
             GET
