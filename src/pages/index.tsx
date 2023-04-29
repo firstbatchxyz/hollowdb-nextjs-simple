@@ -33,7 +33,7 @@ const Home: NextPage = () => {
     if (!hollowdb) return;
 
     // first get the result
-    const oldValue = hollowdb.get(key);
+    const oldValue = await hollowdb.get(key);
     // generate proof
     const notificationId = "proof-generation-notification";
     notifications.show({
@@ -51,7 +51,7 @@ const Home: NextPage = () => {
     });
 
     // update
-    const result = await hollowdb.update(key, value, proof);
+    await hollowdb.update(key, value, proof);
   }
 
   return (

@@ -82,12 +82,7 @@ export const WarpContextProvider: FC<{
     await arweaveWebWallet.connect();
     setArWallet(arweaveWebWallet);
 
-    const hollowdb = new SDK({
-      signer: "use_wallet",
-      warp: warp,
-      cacheType: "lmdb",
-      contractTxId: constants.HOLLOWDB_TEST_TXID,
-    });
+    const hollowdb = new SDK("use_wallet", constants.HOLLOWDB_TEST_TXID, warp);
     setHollowdb(hollowdb);
     // const contract = warp
     //   .contract(constants.HOLLOWDB_TEST_TXID)
@@ -117,16 +112,15 @@ export const WarpContextProvider: FC<{
 
     wagmiConnect();
 
-    const hollowdb = new SDK({
-      signer: {
+    const hollowdb = new SDK(
+      {
         // you need to do this lazily, otherwise you get "SubtleCrypto undefined" error
         signer: (await import("warp-contracts-plugin-signature")).evmSignature,
         type: "ethereum",
       },
-      warp: warp,
-      cacheType: "lmdb",
-      contractTxId: constants.HOLLOWDB_TEST_TXID,
-    });
+      constants.HOLLOWDB_TEST_TXID,
+      warp
+    );
     setHollowdb(hollowdb);
     // if you get SubtleCrypto error, just comment out this part,
     // and then uncomment again and it should work
