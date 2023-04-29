@@ -16,13 +16,11 @@
     "@mantine/next": "^6.0.6",
     "@mantine/notifications": "^6.0.8",
     "@tabler/icons-react": "^2.16.0",
-    "@types/node": "18.15.11",
-    "@types/react": "18.0.33",
-    "@types/react-dom": "18.0.11",
     "arweave-wallet-connector": "^1.0.2",
     "eslint": "8.37.0",
     "eslint-config-next": "13.3.0",
     "ethers": "^5",
+    "hollowdb": "^1.2.0",
     "next": "13.3.0",
     "poseidon-lite": "^0.2.0",
     "react": "18.2.0",
@@ -31,13 +29,16 @@
     "snarkjs": "^0.6.10",
     "typescript": "5.0.3",
     "wagmi": "^0.12.12",
-    "warp-contracts": "^1.4.1",
+    "warp-contracts": "^1.4.2",
     "warp-contracts-plugin-deploy": "^1.0.4",
     "warp-contracts-plugin-ethers": "^1.0.7",
     "warp-contracts-plugin-signature": "^1.0.12",
     "warp-contracts-plugin-snarkjs": "^0.1.3"
   },
   "devDependencies": {
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.33",
+    "@types/react-dom": "18.0.11",
     "sass": "^1.61.0"
   }
 }

@@ -7,24 +7,24 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 const Admin: NextPage = () => {
-  const { hollowDBContract, isConnected, isLoading } = useWarpContext();
-  const [verkey, setVerkey] = useState<object>({});
+  // const { hollowDBContract, isConnected, isLoading } = useWarpContext();
+  // const [verkey, setVerkey] = useState<object>({});
 
-  async function updateVerkey() {
-    if (!hollowDBContract) return;
-    const result = await hollowDBContract.writeInteraction({
-      function: "updateState",
-      data: {
-        newState: {
-          verificationKey: verkey,
-        },
-      },
-    });
-    notifications.show({
-      title: "Done",
-      message: <Anchor href={"https://sonar.warp.cc/#/app/interaction/" + result?.originalTxId} />,
-    });
-  }
+  // async function updateVerkey() {
+  //   if (!hollowDBContract) return;
+  //   const result = await hollowDBContract.writeInteraction({
+  //     function: "updateState",
+  //     data: {
+  //       newState: {
+  //         verificationKey: verkey,
+  //       },
+  //     },
+  //   });
+  //   notifications.show({
+  //     title: "Done",
+  //     message: <Anchor href={"https://sonar.warp.cc/#/app/interaction/" + result?.originalTxId} />,
+  //   });
+  // }
 
   return (
     <Layout>
@@ -33,7 +33,7 @@ const Admin: NextPage = () => {
           width: "50vw",
         }}
       >
-        <JsonInput
+        {/* <JsonInput
           label="Verification Key"
           validationError="Invalid JSON"
           onChange={(val) => {
@@ -49,7 +49,7 @@ const Admin: NextPage = () => {
         />
         <Button disabled={!isConnected || isLoading} onClick={() => updateVerkey()}>
           Update Verification Key
-        </Button>
+        </Button> */}
       </Stack>
     </Layout>
   );
