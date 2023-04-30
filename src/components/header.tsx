@@ -1,4 +1,4 @@
-import { useWarpContext } from "@/context/warp.context";
+import { useHollowDBContext } from "@/context/hollowdb.context";
 import { Box, Container, Text, Group, Code, Anchor, Title, Button, Popover, ActionIcon } from "@mantine/core";
 import Link from "next/link";
 import { IconCircleLetterA, IconCurrencyEthereum, IconFileText, IconWallet, IconWalletOff } from "@tabler/icons-react";
@@ -6,23 +6,25 @@ import type { FC } from "react";
 import constants from "@/constants";
 
 const Header: FC = () => {
-  const { address, disconnect, isConnected, isLoading, connectArweave, connectMetaMask } = useWarpContext();
+  const { address, disconnect, isConnected, isLoading, connectArweave, connectMetaMask, admin } = useHollowDBContext();
+
   return (
     <Box component="header" py="md">
       <Container>
         <Group align="center">
           <Link href="/" passHref>
-            <Anchor>
-              <Title order={3}>HollowDB</Title>
-            </Anchor>
+            <Button size="xs" variant="subtle">
+              <Title order={4}>HollowDB</Title>
+            </Button>
           </Link>
 
-          <Link href="/admin" passHref>
-            <Anchor>
-              <Title order={3}>Admin</Title>
-            </Anchor>
-          </Link>
-
+          {admin && (
+            <Link href="/admin" passHref>
+              <Button size="xs" variant="subtle">
+                <Title order={4}>Admin</Title>
+              </Button>
+            </Link>
+          )}
           {/* pushes the succeeding contents to the right */}
           <span style={{ flexGrow: 1 }} />
           <Code>{address || "not connected"}</Code>

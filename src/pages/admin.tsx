@@ -1,30 +1,24 @@
 import Layout from "@/components/layout";
-import { useWarpContext } from "@/context/warp.context";
-import { Anchor, Box, Button, Group, JsonInput, Stack, TextInput } from "@mantine/core";
+import { useHollowDBContext } from "@/context/hollowdb.context";
+import { Button, JsonInput, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { NextPage } from "next";
-import dynamic from "next/dynamic";
 import { useState } from "react";
 
 const Admin: NextPage = () => {
-  // const { hollowDBContract, isConnected, isLoading } = useWarpContext();
-  // const [verkey, setVerkey] = useState<object>({});
+  const { admin, isConnected, isLoading } = useHollowDBContext();
+  const [verkey, setVerkey] = useState<object>({});
 
-  // async function updateVerkey() {
-  //   if (!hollowDBContract) return;
-  //   const result = await hollowDBContract.writeInteraction({
-  //     function: "updateState",
-  //     data: {
-  //       newState: {
-  //         verificationKey: verkey,
-  //       },
-  //     },
-  //   });
-  //   notifications.show({
-  //     title: "Done",
-  //     message: <Anchor href={"https://sonar.warp.cc/#/app/interaction/" + result?.originalTxId} />,
-  //   });
-  // }
+  async function updateVerkey() {
+    if (!admin) return;
+    await admin.setVerificationKey(verkey as any);
+    notifications.show({
+      title: "Done",
+      message: "Updated verification key!",
+    });
+  }
+
+  // TODO: add deploy code
 
   return (
     <Layout>
@@ -33,7 +27,7 @@ const Admin: NextPage = () => {
           width: "50vw",
         }}
       >
-        {/* <JsonInput
+        <JsonInput
           label="Verification Key"
           validationError="Invalid JSON"
           onChange={(val) => {
@@ -49,7 +43,7 @@ const Admin: NextPage = () => {
         />
         <Button disabled={!isConnected || isLoading} onClick={() => updateVerkey()}>
           Update Verification Key
-        </Button> */}
+        </Button>
       </Stack>
     </Layout>
   );
