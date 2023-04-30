@@ -1,13 +1,11 @@
 import constants from "@/constants";
 import { FC, ReactNode, createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Warp, Contract, WarpFactory } from "warp-contracts";
+import { CustomSignature, Warp } from "warp-contracts";
 import { ArweaveWebWallet } from "arweave-wallet-connector";
 import { notifications } from "@mantine/notifications";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import { SnarkjsExtension } from "warp-contracts-plugin-snarkjs";
-import { EthersExtension } from "warp-contracts-plugin-ethers";
-import { SDK } from "hollowdb";
+import { SDK, Admin } from "hollowdb";
 
 // instantiate Arweave Web Wallet
 const arweaveWebWallet = new ArweaveWebWallet(
@@ -22,8 +20,9 @@ const arweaveWebWallet = new ArweaveWebWallet(
   }
 );
 
-type WarpContextType = {
-  hollowdb: SDK | undefined; // can add HollowDB state here
+type HollowDBContextType = {
+  sdk: SDK | undefined;
+  admin: Admin | undefined;
   isConnected: boolean;
   isLoading: boolean;
   address: string;
@@ -31,8 +30,9 @@ type WarpContextType = {
   connectMetaMask: () => Promise<void>;
   disconnect: () => Promise<void>;
 };
-const WarpContext = createContext<WarpContextType>({
-  hollowdb: undefined,
+const HollowDBContext = createContext<HollowDBContextType>({
+  sdk: undefined,
+  admin: undefined,
   isConnected: false,
   isLoading: false,
   address: "",
@@ -41,7 +41,7 @@ const WarpContext = createContext<WarpContextType>({
   disconnect: async () => {},
 });
 
-export const WarpContextProvider: FC<{
+export const HollowDBContextProvider: FC<{
   children: ReactNode;
   warp: Warp;
 }> = ({ children, warp }) => {
@@ -55,10 +55,12 @@ export const WarpContextProvider: FC<{
   });
   const { disconnect: wagmiDisconnect } = useDisconnect();
   // common
+  const [wallet, setWallet] = useState<"use_wallet" | CustomSignature>();
   const [isLoading, setIsLoading] = useState(false);
   const [address, setAddress] = useState("");
   const isConnected = isArweaveConnected || isWagmiConnected;
-  const [hollowdb, setHollowdb] = useState<SDK>();
+  const [sdk, setSDK] = useState<SDK>();
+  const [admin, setAdmin] = useState<Admin>();
 
   // update address automatically
   useEffect(() => {
@@ -67,7 +69,25 @@ export const WarpContextProvider: FC<{
     } else if (wagmiAddress) {
       setAddress(wagmiAddress);
     }
-  }, [arWallet, wagmiAddress]);
+  }, [arWallet, wagmiAddress, wallet]);
+
+  // if owner is this wallet, create Admin
+  useEffect(() => {
+    if (address !== "" && sdk && wallet) {
+      sdk.readState().then((hollowState) => {
+        const state = hollowState.cachedValue.state;
+        if (state.owner === address) {
+          setAdmin(new Admin(wallet, constants.HOLLOWDB_TEST_TXID, warp));
+        }
+      });
+    }
+  }, [address, sdk, wallet]);
+
+  // if there is wallet, instantiate the SDK
+  useEffect(() => {
+    if (!wallet) return;
+    setSDK(new SDK(wallet, constants.HOLLOWDB_TEST_TXID, warp));
+  }, [wallet]);
 
   async function connectArweave() {
     if (isWagmiConnected) {
@@ -81,16 +101,7 @@ export const WarpContextProvider: FC<{
 
     await arweaveWebWallet.connect();
     setArWallet(arweaveWebWallet);
-
-    const hollowdb = new SDK("use_wallet", constants.HOLLOWDB_TEST_TXID, warp);
-    setHollowdb(hollowdb);
-    // const contract = warp
-    //   .contract(constants.HOLLOWDB_TEST_TXID)
-    //   .setEvaluationOptions({
-    //     allowBigInt: true,
-    //   })
-    //   .connect("use_wallet");
-    // setHollowDBContract(contract);
+    setWallet("use_wallet");
 
     setIsLoading(false);
     notifications.show({
@@ -111,30 +122,11 @@ export const WarpContextProvider: FC<{
     setIsLoading(true);
 
     wagmiConnect();
-
-    const hollowdb = new SDK(
-      {
-        // you need to do this lazily, otherwise you get "SubtleCrypto undefined" error
-        signer: (await import("warp-contracts-plugin-signature")).evmSignature,
-        type: "ethereum",
-      },
-      constants.HOLLOWDB_TEST_TXID,
-      warp
-    );
-    setHollowdb(hollowdb);
-    // if you get SubtleCrypto error, just comment out this part,
-    // and then uncomment again and it should work
-    // const contract = warp
-    //   .contract(constants.HOLLOWDB_TEST_TXID)
-    //   .setEvaluationOptions({
-    //     allowBigInt: true,
-    //   })
-    //   .connect({
-    //     // you need to do this lazily, otherwise you get "SubtleCrypto undefined" error
-    //     signer: (await import("warp-contracts-plugin-signature")).evmSignature,
-    //     type: "ethereum",
-    //   });
-    // setHollowDBContract(contract);
+    setWallet({
+      // you need to do this lazily, otherwise you get "SubtleCrypto undefined" error
+      signer: (await import("warp-contracts-plugin-signature")).evmSignature,
+      type: "ethereum",
+    });
 
     setIsLoading(false);
     notifications.show({
@@ -152,14 +144,16 @@ export const WarpContextProvider: FC<{
       await arweaveWebWallet.disconnect();
       setArWallet(undefined);
     }
-    setHollowdb(undefined);
+    setSDK(undefined);
     setAddress("");
+    setWallet(undefined);
   }
 
   return (
-    <WarpContext.Provider
+    <HollowDBContext.Provider
       value={{
-        hollowdb,
+        sdk,
+        admin,
         isLoading,
         isConnected,
         address,
@@ -169,10 +163,10 @@ export const WarpContextProvider: FC<{
       }}
     >
       {children}
-    </WarpContext.Provider>
+    </HollowDBContext.Provider>
   );
 };
 
-export function useWarpContext() {
-  return useContext(WarpContext);
+export function useHollowDBContext() {
+  return useContext(HollowDBContext);
 }

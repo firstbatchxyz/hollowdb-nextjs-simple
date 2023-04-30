@@ -1,14 +1,13 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
-import { WarpContextProvider } from "../context/warp.context";
+import { HollowDBContextProvider } from "../context/hollowdb.context";
 import { Notifications } from "@mantine/notifications";
 // warp
 import { WarpFactory } from "warp-contracts";
 // wagmi
 import { WagmiConfig, createClient, configureChains, mainnet } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
-import { SDK } from "hollowdb";
 
 // instantiate wagmi client
 const { provider, webSocketProvider } = configureChains([mainnet], [publicProvider()]);
@@ -40,9 +39,9 @@ export default function App(props: AppProps) {
       >
         <WagmiConfig client={client}>
           <Notifications />
-          <WarpContextProvider warp={warp}>
+          <HollowDBContextProvider warp={warp}>
             <Component {...pageProps} />
-          </WarpContextProvider>
+          </HollowDBContextProvider>
         </WagmiConfig>
       </MantineProvider>
     </>
