@@ -1,4 +1,4 @@
-# HollowDB Dashboard
+# HollowDB - Simple NextJS WebApp
 
 > A simple web-application that allows one to get & set values at a certain key.
 
